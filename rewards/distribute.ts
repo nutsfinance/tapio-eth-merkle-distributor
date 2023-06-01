@@ -5,16 +5,16 @@ import { BN } from 'bn.js'
 import { createFile, fileExists, getFile, publishMessage } from './lib/aws_utils';
 import { CONFIG } from '../config';
 
-export const distributeTapEth = async (block: number) => {
+export const distribute = async (asset: string, block: number) => {
     const network = await ethers.provider.getNetwork();
 
     console.log('\n------------------------------------------');
-    console.log(`*      Distribute tapETH Rewards on ${network.name} *`);
+    console.log(`*      Distribute ${asset} Rewards on ${network.name} *`);
     console.log('------------------------------------------\n');
 
     const balanceFile = `balances/${network.name}_tapeth_${block}.csv`;
-    const distributionFile = `distributions/${network.name}_tapeth_${block}.csv`;
-    const statsFile = `stats/${network.name}_tapeth.json`;
+    const distributionFile = `distributions/${network.name}_${asset}_${block}.csv`;
+    const statsFile = `stats/${network.name}_${asset}.json`;
     if (await fileExists(distributionFile)) {
         console.log(`${distributionFile} exists. Skip distribution.`);
         return;
@@ -33,7 +33,7 @@ export const distributeTapEth = async (block: number) => {
         balanceTotal = balanceTotal.add(new BN(balance));
     }
 
-    const config = CONFIG[network.name]["tapeth"];
+    const config = CONFIG[network.name][asset];
     const merkleDistributorAbi = (await ethers.getContractFactory("MerkleDistributor")).interface;
 
     const merkleDistributor = new ethers.Contract(config.merkleDistributor, merkleDistributorAbi, ethers.provider);
@@ -46,16 +46,20 @@ export const distributeTapEth = async (block: number) => {
     }
 
     const erc20Abi = (await ethers.getContractFactory("ERC20")).interface;
-    const tapETH = new ethers.Contract(config.erc20, erc20Abi, ethers.provider);
-    const feeBalance = await tapETH.balanceOf(config.feeAddress);
+    const tapEthAddress = CONFIG[network.name]["tapeth"].address;
+    const tapETH = new ethers.Contract(tapEthAddress, erc20Abi, ethers.provider);
+    const feeBalance = await tapETH.balanceOf(config.rewardCollectorForFee);
     const feeBalanceBN = new BN(feeBalance.toString());
+    const yieldBalance = await tapETH.balanceOf(config.rewardCollectorForYield);
+    const yieldBalanceBN = new BN(yieldBalance.toString());
 
-    console.log(`Fee balance: ${feeBalance.toString()}, balanceTotal: ${balanceTotal.toString()}`);
+    console.log(`Fee balance: ${feeBalance.toString()}, Yield balance: ${yieldBalance.toString()}, balanceTotal: ${balanceTotal.toString()}`);
 
-    let content = `Address,${config.feeAddress}\n`;
+    let content = `Address,${tapEthAddress},${tapEthAddress}\n`;
     for (const address in accountBalance) {
-        const tapETHRewards = accountBalance[address].mul(feeBalanceBN).div(balanceTotal);
-        content += `${address},${tapETHRewards.toString()}\n`;
+        const feeRewards = accountBalance[address].mul(feeBalanceBN).div(balanceTotal);
+        const yieldRewards = accountBalance[address].mul(yieldBalanceBN).div(balanceTotal);
+        content += `${address},${feeRewards.toString()},${yieldRewards.toString()}\n`;
     }
     await createFile(distributionFile, content);
 

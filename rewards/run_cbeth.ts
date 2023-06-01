@@ -1,5 +1,4 @@
 import { ethers } from "hardhat";
-
 import { distribute } from "./distribute";
 import { generateMerkle } from "./generate_merkle";
 import { getTapEthBalance } from "./query_balance_tapeth";
@@ -10,15 +9,15 @@ const main = async () => {
     console.log('Current block number: ' + blockNumber)
     // Round down to nearest 200 blocks
     const block = Math.floor(blockNumber / 200) * 200;
-    console.log(`tapETH pipeline runs at block ${block}`);
+    console.log(`cbeth pipeline runs at block ${block}`);
 
     // Asset-specific
     await getTapEthBalance(block);
-    await distribute("tapeth", block);
+    await distribute("cbeth", block);
 
     // Common
-    await generateMerkle("tapeth", block);
-    await submitMerkle("tapeth", block, true);
+    await generateMerkle("cbeth", block);
+    await submitMerkle("cbeth", block, true);
 }
 
 main().then(() => {

@@ -1,14 +1,16 @@
 import { ethers } from "hardhat";
 import { CONFIG } from "../config";
 import { fileExists, getFile } from "./lib/aws_utils";
-import { BN } from 'bn.js'
 import * as dotenv from 'dotenv';
+import { slice } from "lodash";
+import { BigNumber } from "ethers";
 
 dotenv.config();
 
-export const submitMerkle = async (asset: string, automated: boolean) => {
+export const submitMerkle = async (asset: string, block: number, automated: boolean) => {
     const network = await ethers.provider.getNetwork();
-    const config = CONFIG[network.name]["tapeth"];
+    const config = CONFIG[network.name][asset];
+    const tapEthAddress = CONFIG[network.name]["tapeth"].address;
 
     const [deployer, distributor] = await ethers.getSigners();
 
@@ -19,6 +21,7 @@ export const submitMerkle = async (asset: string, automated: boolean) => {
 
     console.log(`Current cycle: ${currentCycle}`);
 
+    const distributionFile = `distributions/${network.name}_${asset}_${block}.csv`;
     const newMerkleFile = `merkles/${network.name}_${asset}_${currentCycle + 1}.json`;
     const newMerkleTree = await getFile(newMerkleFile);
     const oldMerkleFile = `merkles/${network.name}_${asset}_${currentCycle}.json`;
@@ -28,27 +31,39 @@ export const submitMerkle = async (asset: string, automated: boolean) => {
     const newMerkleTotal = newMerkleTree.tokenTotals;
     const feeTokens = [];
     const feeAmounts = [];
-    const otherTokens = [];
-    const otherAmounts = [];
+    const yieldTokens = [];
+    const yieldAmounts = [];
+    let feeAmount = BigNumber.from(0);
+    let yieldAmount = BigNumber.from(0);
+
+    // calculate fee and yield tokens and amounts
+    const distributionList = (await getFile(distributionFile)).trim().split("\n").slice(1); // Skip header
+    for (const distribution of distributionList) {
+        const values = distribution.split(",");
+        feeAmount = feeAmount.add(BigNumber.from(values[1].toString()));
+        yieldAmount = yieldAmount.add(BigNumber.from(values[2].toString()));
+    }
+
     for (const key in newMerkleTotal) {
-        let oldValue = new BN(oldMerkleTotal[key] || "0");
+        let oldValue = BigNumber.from(oldMerkleTotal[key] || "0");
         let value = newMerkleTotal[key];
-        let diff = new BN(value).sub(oldValue);
-        if (diff.gt(new BN(0))) {
-            if (key == config.feeAddress) {
-                feeTokens.push(key);
-                feeAmounts.push(diff.toString());
+        let diff = BigNumber.from(value).sub(oldValue);
+        if (diff.gt(BigNumber.from('0'))) {
+            if (feeAmount.add(yieldAmount).eq(diff)) {
+                feeTokens.push(tapEthAddress);
+                feeAmounts.push(feeAmount.toString());
+                yieldTokens.push(tapEthAddress);
+                yieldAmounts.push(yieldAmount.toString());
             } else {
-                otherTokens.push(key);
-                otherAmounts.push(diff.toString());
+                throw new Error(`Invalid fee/yield amount: ${diff.toString()}, ${feeAmount.toString()}, ${yieldAmount.toString()}`);
             }
             console.log(key, diff.toString());
         }
     }
-    console.log(`feeTokens: ${feeTokens}, feeAmounts: ${feeAmounts}, otherTokens: ${otherTokens}, otherAmounts: ${otherAmounts}`);
-    console.log(`Reward collector address for fee/yield: ${config.rewardCollectorForFee}`);
-    if (config.rewardCollectorForOther) {
-        console.log(`Reward collector address for other: ${config.rewardCollectorForOther}`);
+    console.log(`feeTokens: ${feeTokens}, feeAmounts: ${feeAmounts}, yieldTokens: ${yieldTokens}, otherAmounts: ${yieldAmounts}`);
+    console.log(`Reward collector address for fee: ${config.rewardCollectorForFee}`);
+    if (config.rewardCollectorForYield) {
+        console.log(`Reward collector address for yield: ${config.rewardCollectorForYield}`);
     }
 
     console.log(`Proposing cycle: ${currentCycle + 1}: root = ${newMerkleTree.merkleRoot}, start = ${newMerkleTree.startBlock}, end = ${newMerkleTree.endBlock}`);
@@ -81,33 +96,36 @@ export const submitMerkle = async (asset: string, automated: boolean) => {
             console.log('Proposal role2: ' + role2)
             console.log('Has role2: ' + await rewardCollectorForFee.hasRole(role2, roleAddress));
 
-            const rewardCollectorForOther = new ethers.Contract(config.rewardCollectorForOther,
+            const rewardCollectorForYield = new ethers.Contract(config.rewardCollectorForYield,
                 rewardCollectorAggregatorAbi, distributor);
             const role3 = await rewardCollectorForFee.DISTRIBUTOR_ROLE();
             console.log('Proposal role3: ' + role3)
-            console.log('Has role3: ' + await rewardCollectorForOther.hasRole(role3, roleAddress));
+            console.log('Has role3: ' + await rewardCollectorForYield.hasRole(role3, roleAddress));
 
             const tx2 = await aggregator.distribute(config.merkleDistributor, config.rewardCollectorForFee, 
-                config.rewardCollectorForOther,
-                feeTokens, feeAmounts, otherTokens, otherAmounts);
+                config.rewardCollectorForYield,
+                feeTokens, feeAmounts, yieldTokens, yieldAmounts);
             await tx2.wait();
             console.log("all rewards distributed");
         } else {
             console.log(`Reward collector address for fee/yield: ${config.rewardCollectorForFee}`);
             const rewardCollectorAbi = (await ethers.getContractFactory("RewardCollector")).interface;
-            const rewardCollector = new ethers.Contract(config.rewardCollectorForFee, rewardCollectorAbi, distributor);
-            const roleAddress = distributor.address;
-            const role1 = await rewardCollector.DISTRIBUTOR_ROLE();
-            console.log('Proposal role1: ' + role1)
-            console.log('Has role1: ' + await rewardCollector.hasRole(role1, roleAddress));
-
             const rewardCollectorForFee = new ethers.Contract(config.rewardCollectorForFee, rewardCollectorAbi, distributor);
+            const roleAddress = distributor.address;
+            const role1 = await rewardCollectorForFee.DISTRIBUTOR_ROLE();
+            console.log('Proposal role1: ' + role1)
+            console.log('Has role1: ' + await rewardCollectorForFee.hasRole(role1, roleAddress));
+
+            const rewardCollectorForYield = new ethers.Contract(config.rewardCollectorForYield, rewardCollectorAbi, distributor);
             const role2 = await rewardCollectorForFee.DISTRIBUTOR_ROLE();
             console.log('Proposal role2: ' + role2)
-            console.log('Has role2: ' + await rewardCollectorForFee.hasRole(role2, roleAddress));
+            console.log('Has role2: ' + await rewardCollectorForYield.hasRole(role2, roleAddress));
 
-            const tx2 = await rewardCollector.distribute(config.merkleDistributor, feeTokens, feeAmounts);
+            const tx2 = await rewardCollectorForFee.distribute(config.merkleDistributor, feeTokens, feeAmounts);
             await tx2.wait();
+
+            const tx3 = await rewardCollectorForYield.distribute(config.merkleDistributor, yieldTokens, yieldAmounts);
+            await tx3.wait();
             console.log("fee/yield distributed");
         }
 

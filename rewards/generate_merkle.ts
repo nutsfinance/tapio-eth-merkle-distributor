@@ -12,7 +12,7 @@ export const generateMerkle = async (asset: string, block: number) => {
     console.log('------------------------------------------\n');
 
     // Get the current cycle
-    const config = CONFIG[network.name]["tapeth"];
+    const config = CONFIG[network.name][asset];
     const merkleDistributorAbi = (await ethers.getContractFactory("MerkleDistributor")).interface;
 
     const merkleDistributor = new ethers.Contract(config.merkleDistributor, merkleDistributorAbi, ethers.provider);
