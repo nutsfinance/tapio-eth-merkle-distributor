@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { CONFIG } from "../config";
 
 async function main() {
-    const asset = "cbeth";
+    const asset = "steth";
     const network = await ethers.provider.getNetwork();
     const config = CONFIG[network.name][asset];
 
