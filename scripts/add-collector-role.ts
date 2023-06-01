@@ -4,11 +4,12 @@ import { CONFIG } from "../config";
 async function main() {
     const asset = "steth";
     const network = await ethers.provider.getNetwork();
-    const config = CONFIG[network.name][asset];
+    const config = CONFIG[network.name];
+    const poolConfig = config[asset];
 
     const RewardCollector = await ethers.getContractFactory("RewardCollector");
-    const rewardCollectorForFee = RewardCollector.attach(config.rewardCollectorForFee);
-    const rewardCollectorForYield = RewardCollector.attach(config.rewardCollectorForYield);
+    const rewardCollectorForFee = RewardCollector.attach(poolConfig.rewardCollectorForFee);
+    const rewardCollectorForYield = RewardCollector.attach(poolConfig.rewardCollectorForYield);
 
     const roleAddress = config.aggregator;
     const role1 = await rewardCollectorForFee.DISTRIBUTOR_ROLE();

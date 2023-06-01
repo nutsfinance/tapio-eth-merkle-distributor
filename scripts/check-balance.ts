@@ -3,10 +3,10 @@ import { CONFIG } from '../config';
 
 async function main() {
     const network = await ethers.provider.getNetwork();
-    const config = CONFIG[network.name]["tapeth"];
+    const config = CONFIG[network.name];
 
     const ERC20 = await ethers.getContractFactory("ERC20");
-    const tapETH = ERC20.attach(config.erc20);
+    const tapETH = ERC20.attach(config.tapeth);
     console.log('tapETH Balance before: ' + await tapETH.balanceOf(config.merkleDistributor));
 }
 

@@ -5,7 +5,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
 
     const network = await ethers.provider.getNetwork();
-    const config = CONFIG[network.name]["tapeth"];
+    const config = CONFIG[network.name];
 
     const MerkleDistributor = await ethers.getContractFactory("MerkleDistributor");
     const merkleDistributor = MerkleDistributor.attach(config.merkleDistributor);

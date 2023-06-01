@@ -7,6 +7,8 @@ import { CONFIG } from '../config';
 
 export const distribute = async (asset: string, block: number) => {
     const network = await ethers.provider.getNetwork();
+    const config = CONFIG[network.name];
+    const poolConfig = config[asset];
 
     console.log('\n------------------------------------------');
     console.log(`*      Distribute ${asset} Rewards on ${network.name} *`);
@@ -33,9 +35,7 @@ export const distribute = async (asset: string, block: number) => {
         balanceTotal = balanceTotal.add(new BN(balance));
     }
 
-    const config = CONFIG[network.name][asset];
     const merkleDistributorAbi = (await ethers.getContractFactory("MerkleDistributor")).interface;
-
     const merkleDistributor = new ethers.Contract(config.merkleDistributor, merkleDistributorAbi, ethers.provider);
     const currentCycle = (await merkleDistributor.currentCycle()).toNumber();
     const currentEndBlock = (await merkleDistributor.lastPublishEndBlock()).toNumber();
@@ -46,16 +46,15 @@ export const distribute = async (asset: string, block: number) => {
     }
 
     const erc20Abi = (await ethers.getContractFactory("ERC20")).interface;
-    const tapEthAddress = CONFIG[network.name]["tapeth"].address;
-    const tapETH = new ethers.Contract(tapEthAddress, erc20Abi, ethers.provider);
-    const feeBalance = await tapETH.balanceOf(config.rewardCollectorForFee);
+    const tapETH = new ethers.Contract(config.tapeth, erc20Abi, ethers.provider);
+    const feeBalance = await tapETH.balanceOf(poolConfig.rewardCollectorForFee);
     const feeBalanceBN = new BN(feeBalance.toString());
-    const yieldBalance = await tapETH.balanceOf(config.rewardCollectorForYield);
+    const yieldBalance = await tapETH.balanceOf(poolConfig.rewardCollectorForYield);
     const yieldBalanceBN = new BN(yieldBalance.toString());
 
     console.log(`Fee balance: ${feeBalance.toString()}, Yield balance: ${yieldBalance.toString()}, balanceTotal: ${balanceTotal.toString()}`);
 
-    let content = `Address,${tapEthAddress},${tapEthAddress}\n`;
+    let content = `Address,${config.tapeth},${config.tapeth}\n`;
     for (const address in accountBalance) {
         const feeRewards = accountBalance[address].mul(feeBalanceBN).div(balanceTotal);
         const yieldRewards = accountBalance[address].mul(yieldBalanceBN).div(balanceTotal);
@@ -64,7 +63,7 @@ export const distribute = async (asset: string, block: number) => {
     await createFile(distributionFile, content);
 
     // Notify the fee and yield amount with SNS
-    const message = `tapETH amount: ${feeBalance.toString()}\n`;
+    const message = `tapETH ${asset} fee amount: ${feeBalance.toString()}, yield amount: ${yieldBalance.toString()}\n`;
     await publishMessage(message);
 
     // TODO Transfer tapETH to merkle distributor from fee and yield recipients

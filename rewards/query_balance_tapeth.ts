@@ -71,7 +71,7 @@ export const getTapEthBalance = async (block: number) => {
 
   console.log(`Start querying tapETH balance on at ${start.toTimeString()}`);
 
-  const subql = CONFIG[network.name]["subql"];
+  const subql = CONFIG[network.name].subql;
   const addressInfo = await queryAccountsAndBalances(subql, block);
   for (let info of addressInfo) {
     content += info.address + "," + info.balance + "\n";

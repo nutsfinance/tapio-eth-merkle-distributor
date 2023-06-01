@@ -9,15 +9,16 @@ const main = async () => {
     console.log('Current block number: ' + blockNumber)
     // Round down to nearest 200 blocks
     const block = Math.floor(blockNumber / 200) * 200;
-    console.log(`reth pipeline runs at block ${block}`);
+    console.log(`steh pipeline runs at block ${block}`);
 
     // Asset-specific
     await getTapEthBalance(block);
+    await distribute("steth", block);
     await distribute("reth", block);
 
     // Common
-    await generateMerkle("reth", block);
-    await submitMerkle("reth", block, true);
+    await generateMerkle(["steth", "reth"], block);
+    await submitMerkle(["steth", "reth"], block, true);
 }
 
 main().then(() => {
