@@ -72,8 +72,13 @@ export const getTapEthBalance = async (block: number) => {
   console.log(`Start querying tapETH balance on at ${start.toTimeString()}`);
 
   const subql = CONFIG[network.name].subql;
+  const exclude_addresses = CONFIG[network.name].exclude_addresses as string[];
+  console.log(`skip exclude addresses: ${exclude_addresses}`)
+
   const addressInfo = await queryAccountsAndBalances(subql, block);
   for (let info of addressInfo) {
+    // skip exclude addresses
+    if (exclude_addresses.includes(info.address)) continue;
     content += info.address + "," + info.balance + "\n";
   }
 
