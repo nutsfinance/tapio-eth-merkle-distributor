@@ -61,7 +61,7 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
     const network = await ethers.provider.getNetwork();
     const config = CONFIG[network.name];
 
-    const [deployer, distributor] = await ethers.getSigners();
+    const [deployer] = await ethers.getSigners();
 
     // Get the current cycle
     const merkleDistributorAbi = (await ethers.getContractFactory("MerkleDistributor")).interface;
@@ -81,7 +81,7 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
     const detials = new Map<string, any>();
     assets.forEach((asset) => {
         detials.set(asset, {
-            distributor: distributor,
+            distributor: deployer,
             aggregator: config.aggregator,
             merkleDistributor: config.merkleDistributor,
             rewardCollectorForFee: config[asset].rewardCollectorForFee,

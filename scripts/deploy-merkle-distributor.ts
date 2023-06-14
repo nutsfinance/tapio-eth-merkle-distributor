@@ -3,8 +3,8 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
-    const [deployer, distributor] = await ethers.getSigners();
-    console.log(`Deploying contracts with the account: ${deployer.address}, distributor: ${distributor.address}`);
+    const [deployer] = await ethers.getSigners();
+    console.log(`Deploying contracts with the account: ${deployer.address}, distributor: ${deployer.address}`);
 
     console.log('Deployer addresss: ' + deployer.address + ", balance: " + (await deployer.getBalance()).toString());
 
@@ -16,10 +16,10 @@ async function main() {
 
     const role = await merkleDistributor.ROOT_PROPOSER_ROLE();
     console.log('Role: ' + role)
-    console.log('Has role: ' + await merkleDistributor.hasRole(role, distributor.address));
-    const tx = await merkleDistributor.grantRole(role, distributor.address);
+    console.log('Has role: ' + await merkleDistributor.hasRole(role, deployer.address));
+    const tx = await merkleDistributor.grantRole(role, deployer.address);
     await tx.wait();
-    console.log('Has role: ' + await merkleDistributor.hasRole(role, distributor.address));
+    console.log('Has role: ' + await merkleDistributor.hasRole(role, deployer.address));
 }
 
 main()

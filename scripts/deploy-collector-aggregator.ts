@@ -3,8 +3,8 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
-  const [deployer, distributor] = await ethers.getSigners();
-  console.log(`Deploying contracts with the account: ${deployer.address}, distributor: ${distributor.address}`);
+  const [deployer] = await ethers.getSigners();
+  console.log(`Deploying contracts with the account: ${deployer.address}, distributor: ${deployer.address}`);
   
   const RewardCollectorAggregator = await ethers.getContractFactory("RewardCollectorAggregator", deployer);
   const rewardCollectorAggregator = await upgrades.deployProxy(RewardCollectorAggregator, [deployer.address]);
@@ -12,7 +12,7 @@ async function main() {
   await rewardCollectorAggregator.deployed();
 
   console.log(`Reward collector aggregator ${rewardCollectorAggregator.address} is deployed`);
-  const roleAddress = distributor.address;
+  const roleAddress = deployer.address;
   const role1 = await rewardCollectorAggregator.DISTRIBUTOR_ROLE();
   console.log('Distributor role: ' + role1)
   console.log('Has role: ' + await rewardCollectorAggregator.hasRole(role1, roleAddress));
