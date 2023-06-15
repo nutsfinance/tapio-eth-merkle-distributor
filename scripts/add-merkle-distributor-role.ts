@@ -14,7 +14,7 @@ async function main() {
     const role = await merkleDistributor.ROOT_PROPOSER_ROLE();
     console.log('Role: ' + role)
     console.log('Has role: ' + await merkleDistributor.hasRole(role, roleAddress));
-    const tx = await merkleDistributor.grantRole(role, deployer.address);
+    const tx = await merkleDistributor.grantRole(role, roleAddress);
     await tx.wait();
     console.log('Has role: ' + await merkleDistributor.hasRole(role, roleAddress));
 }
