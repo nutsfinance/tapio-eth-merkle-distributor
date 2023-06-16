@@ -8,7 +8,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
 
     const MerkleDistributor = await ethers.getContractFactory("MerkleDistributor", deployer);
-    const merkleDistributor = await upgrades.upgradeProxy(config.merkleDistributor, MerkleDistributor);
+    const merkleDistributor = MerkleDistributor.attach(config.merkleDistributor);
 
     const roleAddress = deployer.address;
     const role = await merkleDistributor.ROOT_PROPOSER_ROLE();

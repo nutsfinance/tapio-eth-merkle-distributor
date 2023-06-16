@@ -555,7 +555,7 @@
             "label": "merkles",
             "offset": 0,
             "slot": "217",
-            "type": "t_mapping(t_uint256,t_struct(MerkleData)2323_storage)",
+            "type": "t_mapping(t_uint256,t_struct(MerkleData)1414_storage)",
             "contract": "MerkleDistributor",
             "src": "contracts/MerkleDistributor.sol:57"
           }
@@ -597,11 +597,11 @@
             "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(MerkleData)2323_storage)": {
+          "t_mapping(t_uint256,t_struct(MerkleData)1414_storage)": {
             "label": "mapping(uint256 => struct MerkleDistributor.MerkleData)",
             "numberOfBytes": "32"
           },
-          "t_struct(MerkleData)2323_storage": {
+          "t_struct(MerkleData)1414_storage": {
             "label": "struct MerkleDistributor.MerkleData",
             "members": [
               {
