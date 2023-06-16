@@ -10,11 +10,11 @@ export const CONFIG: any = {
             rewardCollectorForYield: "0x66cD8317b78a0Cd94CfAc74F108BcF67f31Af89f",
         },
         "aggregator": "0x790af6f96C37bd67876b8a05e86d4598b6FeF9b8",
-        "merkleDistributor": "0x4226D6e76C50dB5074b0E3512b21F1a79eA9F360",
+        "merkleDistributor": "0x322816073834C1188338E5C5Cd8d908b153fCF7E",
         "tapeth": "0xDFfB1823e24A76e5682e988DF9C4bF53bf3299De",
         "exclude_addresses": [
             // merkle distributor
-            "0x4226D6e76C50dB5074b0E3512b21F1a79eA9F360",
+            "0x322816073834C1188338E5C5Cd8d908b153fCF7E",
             // steth fee reward
             "0x78d21ca1e393fEADF4Fda3D90558A601f9411bc5",
             // steth yield reward
