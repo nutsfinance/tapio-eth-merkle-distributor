@@ -70,9 +70,9 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
 
     console.log(`Current cycle: ${currentCycle}`);
 
-    const newMerkleFile = `merkles/${network.name}_${currentCycle + 1}.json`;
+    const newMerkleFile = `merkles/${network.name}_${config.version}_${currentCycle + 1}.json`;
     const newMerkleTree = await getFile(newMerkleFile);
-    const oldMerkleFile = `merkles/${network.name}_${currentCycle}.json`;
+    const oldMerkleFile = `merkles/${network.name}_${config.version}_${currentCycle}.json`;
     const oldMerkleTree = (await fileExists(oldMerkleFile)) ? await getFile(oldMerkleFile) : {};
 
     const oldMerkleTotal = oldMerkleTree.tokenTotals || {};
@@ -98,7 +98,7 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
     await Promise.all(
         Array.from(detials.entries()).map(async ([asset, data]) => {
             // calculate fee and yield tokens and amounts
-        const distributionFile = `distributions/${network.name}_${asset}_${block}.csv`;
+        const distributionFile = `distributions/${network.name}_${asset}_${config.version}_${block}.csv`;
         const distributionList = (await getFile(distributionFile)).trim().split("\n");
         const headers = distributionList[0].split(",");
 

@@ -55,12 +55,13 @@ async function queryAccountsAndBalances (subql: string, block: number) {
 
 export const getTapEthBalance = async (block: number) => {
   const network = await ethers.provider.getNetwork();
+  const config = CONFIG[network.name];
 
   console.log('\n----------------------------------------------');
   console.log(`* Query tapETH Balance on ${network.name} *`);
   console.log('----------------------------------------------\n');
 
-  const balanceFile = `balances/${network.name}_tapeth_${block}.csv`;
+  const balanceFile = `balances/${network.name}_tapeth_${config.version}_${block}.csv`;
   if (await fileExists(balanceFile)) {
     console.log(`${balanceFile} exists. Skip querying raw balances.`);
     return;

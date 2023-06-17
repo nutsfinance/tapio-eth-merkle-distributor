@@ -47,8 +47,8 @@ export const generateMerkle = async (assets: string[], block: number) => {
         return;
     }
 
-    const oldMerkleFile = `merkles/${network.name}_${currentCycle}.json`;
-    const newMerkleFile = `merkles/${network.name}_${currentCycle + 1}.json`;
+    const oldMerkleFile = `merkles/${network.name}_${config.version}_${currentCycle}.json`;
+    const newMerkleFile = `merkles/${network.name}_${config.version}_${currentCycle + 1}.json`;
     const rewardList = new RewardList(currentCycle + 1, currentEndBlock, block);
 
     // Load the current merkle
@@ -70,7 +70,7 @@ export const generateMerkle = async (assets: string[], block: number) => {
 
     await Promise.all(
         assets.map(async (asset) => {
-            const file = `distributions/${network.name}_${asset}_${block}.csv`
+            const file = `distributions/${network.name}_${asset}_${config.version}_${block}.csv`
             await updateRewardList(rewardList, file);
         })
     );

@@ -1,5 +1,6 @@
 export const CONFIG: any = {
     "goerli": {
+        "version": "v1",
         "subql": "https://graphql.tapio.finance/goerli",
         "steth": {
             rewardCollectorForFee: "0x78d21ca1e393fEADF4Fda3D90558A601f9411bc5",

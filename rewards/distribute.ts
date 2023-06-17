@@ -14,9 +14,9 @@ export const distribute = async (asset: string, block: number) => {
     console.log(`*      Distribute ${asset} Rewards on ${network.name} *`);
     console.log('------------------------------------------\n');
 
-    const balanceFile = `balances/${network.name}_tapeth_${block}.csv`;
-    const distributionFile = `distributions/${network.name}_${asset}_${block}.csv`;
-    const statsFile = `stats/${network.name}_${asset}.json`;
+    const balanceFile = `balances/${network.name}_tapeth_${config.version}_${block}.csv`;
+    const distributionFile = `distributions/${network.name}_${asset}_${config.version}_${block}.csv`;
+    const statsFile = `stats/${network.name}_${asset}_${config.version}.json`;
     if (await fileExists(distributionFile)) {
         console.log(`${distributionFile} exists. Skip distribution.`);
         return;
