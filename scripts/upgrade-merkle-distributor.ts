@@ -7,8 +7,6 @@ async function main() {
 
     const [deployer] = await ethers.getSigners();
 
-    console.log("Deploying contracts with the account:", deployer.address);
-
     console.log('Deployer addresss: ' + deployer.address + ", balance: " + (await deployer.getBalance()).toString());
 
     const MerkleDistributor = await ethers.getContractFactory("MerkleDistributor", deployer);

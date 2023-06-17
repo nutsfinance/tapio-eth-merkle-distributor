@@ -1,29 +1,29 @@
 export const CONFIG: any = {
     "goerli": {
-        "version": "v1",
+        "version": "v2",
         "subql": "https://graphql.tapio.finance/goerli",
         "steth": {
-            rewardCollectorForFee: "0x78d21ca1e393fEADF4Fda3D90558A601f9411bc5",
-            rewardCollectorForYield: "0x7C3dB44C6D0fFcF5bB0C2FD9c8F5906256C91f3c",
+            rewardCollectorForFee: "0x442C7D6425E2D02D7314165b1b04A01ef615EA53",
+            rewardCollectorForYield: "0x8C96e4A7FFC6F62056Ea08a8B71F1AEaa1759554",
         },
         "reth": {
-            rewardCollectorForFee: "0xc2C7E949efAA399BaF7fa0dc7faf20fFFAd9d7B2",
-            rewardCollectorForYield: "0x66cD8317b78a0Cd94CfAc74F108BcF67f31Af89f",
+            rewardCollectorForFee: "0x14a10974122377E8e97030E53B67C1E3f971090a",
+            rewardCollectorForYield: "0x3F9FBf4e4Ab136A57aF23880A183489AC3A98579",
         },
-        "aggregator": "0x790af6f96C37bd67876b8a05e86d4598b6FeF9b8",
-        "merkleDistributor": "0x322816073834C1188338E5C5Cd8d908b153fCF7E",
-        "tapeth": "0xDFfB1823e24A76e5682e988DF9C4bF53bf3299De",
+        "aggregator": "0xE4A195C75EF6397E78FdF45C62d474b2b2152B4F",
+        "merkleDistributor": "0x1036b3204039A1F8F8F2bDAFA43c67825ac81d19",
+        "tapeth": "0xA33a79c5Efadac7c07693c3ce32Acf9a1Fc5A387",
         "exclude_addresses": [
             // merkle distributor
-            "0x322816073834C1188338E5C5Cd8d908b153fCF7E",
+            "0x1036b3204039A1F8F8F2bDAFA43c67825ac81d19",
             // steth fee reward
-            "0x78d21ca1e393fEADF4Fda3D90558A601f9411bc5",
+            "0x442C7D6425E2D02D7314165b1b04A01ef615EA53",
             // steth yield reward
-            "0x7C3dB44C6D0fFcF5bB0C2FD9c8F5906256C91f3c",
+            "0x8C96e4A7FFC6F62056Ea08a8B71F1AEaa1759554",
             // reth fee reward
-            "0xc2C7E949efAA399BaF7fa0dc7faf20fFFAd9d7B2",
+            "0x14a10974122377E8e97030E53B67C1E3f971090a",
             // reth yield reward
-            "0x66cD8317b78a0Cd94CfAc74F108BcF67f31Af89f"
+            "0x3F9FBf4e4Ab136A57aF23880A183489AC3A98579"
         ]
     },
     "ethereum": {

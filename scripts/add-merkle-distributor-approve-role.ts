@@ -11,12 +11,15 @@ async function main() {
     const merkleDistributor = MerkleDistributor.attach(config.merkleDistributor);
 
     const roleAddress = deployer.address;
-    const role = await merkleDistributor.ROOT_VALIDATOR_ROLE();
-    console.log('Role: ' + role)
-    console.log('Has role: ' + await merkleDistributor.hasRole(role, roleAddress));
-    const tx = await merkleDistributor.grantRole(role, roleAddress);
-    await tx.wait();
-    console.log('Has role: ' + await merkleDistributor.hasRole(role, roleAddress));
+    const validatorRole = await merkleDistributor.ROOT_VALIDATOR_ROLE();
+    console.log('Validator role: ' + validatorRole);
+    const hasValidatorRole = await merkleDistributor.hasRole(validatorRole, roleAddress);
+    console.log('Has validator role: ' + hasValidatorRole);
+    if (!hasValidatorRole) {
+        const tx = await merkleDistributor.grantRole(validatorRole, roleAddress);
+        await tx.wait();
+        console.log('Has validator role: ' + await merkleDistributor.hasRole(validatorRole, roleAddress));
+    }
 }
 
 main()

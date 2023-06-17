@@ -11,15 +11,22 @@ async function main() {
     const rewardCollectorForFee = RewardCollector.attach(poolConfig.rewardCollectorForFee);
     const rewardCollectorForYield = RewardCollector.attach(poolConfig.rewardCollectorForYield);
 
-    console.log(`has target: ` + await rewardCollectorForFee.targets(config.merkleDistributor));
-    const tx1 = await rewardCollectorForFee.updateTarget(config.merkleDistributor, true);
-    await tx1.wait();
-    console.log(`has target: ` + await rewardCollectorForFee.targets(config.merkleDistributor));
+    const targetAddress = config.merkleDistributor;
+    const feeHasTarget = await rewardCollectorForFee.targets(targetAddress);
+    console.log('Fee has target: ' + feeHasTarget);
+    if (!feeHasTarget) {
+        const tx = await rewardCollectorForFee.updateTarget(targetAddress, true);
+        await tx.wait();
+        console.log('Fee has target: ' + await rewardCollectorForFee.targets(targetAddress));
+    }
 
-    console.log(`has target: ` + await rewardCollectorForYield.targets(config.merkleDistributor));
-    const tx2 = await rewardCollectorForYield.updateTarget(config.merkleDistributor, true);
-    await tx2.wait();
-    console.log(`has target: ` + await rewardCollectorForYield.targets(config.merkleDistributor));
+    const yieldHasTarget = await rewardCollectorForYield.targets(targetAddress);
+    console.log('Yield has target: ' + yieldHasTarget);
+    if (!yieldHasTarget) {
+        const tx = await rewardCollectorForYield.updateTarget(targetAddress, true);
+        await tx.wait();
+        console.log('Yield has target: ' + await rewardCollectorForYield.targets(targetAddress));
+    }
 }
 
 main()

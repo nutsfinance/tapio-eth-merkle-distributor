@@ -12,19 +12,25 @@ async function main() {
     const rewardCollectorForYield = RewardCollector.attach(poolConfig.rewardCollectorForYield);
 
     const roleAddress = config.aggregator;
-    const role1 = await rewardCollectorForFee.DISTRIBUTOR_ROLE();
-    console.log('Proposal role1: ' + role1)
-    console.log('Has role1: ' + await rewardCollectorForFee.hasRole(role1, roleAddress));
-    const tx1 = await rewardCollectorForFee.grantRole(role1, roleAddress);
-    await tx1.wait();
-    console.log('Has role1: ' + await rewardCollectorForFee.hasRole(role1, roleAddress));
+    const feeDistributorRole = await rewardCollectorForFee.DISTRIBUTOR_ROLE();
+    console.log('Fee distributor role: ' + feeDistributorRole)
+    const feeHasDistributorRole = await rewardCollectorForFee.hasRole(feeDistributorRole, roleAddress);
+    console.log('Fee has distributor role: ' + feeHasDistributorRole);
+    if (!feeHasDistributorRole) {
+        const tx = await rewardCollectorForFee.grantRole(feeDistributorRole, roleAddress);
+        await tx.wait();
+        console.log('Fee has distributor role: ' + await rewardCollectorForFee.hasRole(feeDistributorRole, roleAddress));
+    }
 
-    const role2 = await rewardCollectorForYield.DISTRIBUTOR_ROLE();
-    console.log('Proposal role2: ' + role2)
-    console.log('Has role2: ' + await rewardCollectorForYield.hasRole(role2, roleAddress));
-    const tx2 = await rewardCollectorForYield.grantRole(role1, roleAddress);
-    await tx2.wait();
-    console.log('Has role2: ' + await rewardCollectorForYield.hasRole(role2, roleAddress));
+    const yieldDistributorRole = await rewardCollectorForYield.DISTRIBUTOR_ROLE();
+    console.log('Yield distributor role: ' + yieldDistributorRole)
+    const yieldHasDistributorRole = await rewardCollectorForYield.hasRole(yieldDistributorRole, roleAddress);
+    console.log('Yield has distributor role: ' + yieldHasDistributorRole);
+    if (!yieldHasDistributorRole) {
+        const tx = await rewardCollectorForYield.grantRole(yieldDistributorRole, roleAddress);
+        await tx.wait();
+        console.log('Yield has distributor role: ' + await rewardCollectorForYield.hasRole(yieldDistributorRole, roleAddress));
+    }
 }
 
 main()
