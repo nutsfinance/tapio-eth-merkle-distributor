@@ -16,6 +16,6 @@ export const sendToSlack = async (is_success: boolean, content: string) => {
 
     console.log(content)
     if (process.env.SLACK_URL) {
-        axios.post(process.env.SLACK_URL as string, body);
+        await axios.post(process.env.SLACK_URL as string, body);
     }
 }

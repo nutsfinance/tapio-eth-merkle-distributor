@@ -127,7 +127,7 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
 
     console.log(`TotalAmount: ${formatAmount(totalAmount)}, fee and yield details:`);
     console.log(detials);
-    content += `totalAmount: ${formatAmount(totalAmount)}\n`;
+    content += `TotalAmount: ${formatAmount(totalAmount)}\n`;
     content += `stETH fee: ${formatAmount(detials.get('steth').feeAmounts[0])}, yield: ${formatAmount(detials.get('steth').yieldAmounts[0])}\n`;
     content += `rETH fee: ${formatAmount(detials.get('reth').feeAmounts[0])}, yield: ${formatAmount(detials.get('reth').yieldAmounts[0])}\n`;
 
