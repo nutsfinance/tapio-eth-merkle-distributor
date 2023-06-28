@@ -3,7 +3,8 @@ import { CONFIG } from "../config";
 import { fileExists, getFile } from "./lib/aws_utils";
 import * as dotenv from 'dotenv';
 import { slice } from "lodash";
-import { BigNumber } from "ethers";
+import BN from "bignumber.js";
+import { formatAmount } from "./lib/log";
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
     const currentCycle = (await merkleDistributor.currentCycle()).toNumber();
 
     console.log(`Current cycle: ${currentCycle}`);
+    let content = `Current cycle: ${currentCycle}\n`;
 
     const newMerkleFile = `merkles/${network.name}_${config.version}_${currentCycle + 1}.json`;
     const newMerkleTree = await getFile(newMerkleFile);
@@ -94,7 +96,7 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
         });
     });
 
-    let totalAmount = BigNumber.from(0);
+    let totalAmount = new BN(0);
     await Promise.all(
         Array.from(detials.entries()).map(async ([asset, data]) => {
             // calculate fee and yield tokens and amounts
@@ -102,19 +104,19 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
         const distributionList = (await getFile(distributionFile)).trim().split("\n");
         const headers = distributionList[0].split(",");
 
-        let feeAmount = BigNumber.from(0);
-        let yieldAmount = BigNumber.from(0);
+        let feeAmount = new BN(0);
+        let yieldAmount = new BN(0);
 
         for (const distribution of distributionList) {
             // Skip header
             if (distribution.includes("Address")) continue;
 
             const values = distribution.split(",");
-            const feeBN = BigNumber.from(values[1].toString());
-            const yieldBN = BigNumber.from(values[2].toString());
-            totalAmount = totalAmount.add(feeBN).add(yieldBN);
-            feeAmount = feeAmount.add(feeBN);
-            yieldAmount = yieldAmount.add(yieldBN);
+            const feeBN = new BN(values[1]);
+            const yieldBN = new BN(values[2]);
+            totalAmount = totalAmount.plus(feeBN).plus(yieldBN);
+            feeAmount = feeAmount.plus(feeBN);
+            yieldAmount = yieldAmount.plus(yieldBN);
         }
 
         data.feeTokens.push(headers[1]);
@@ -123,14 +125,17 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
         data.yieldAmounts.push(yieldAmount);
     }));
 
-    console.log(`totalAmount: ${totalAmount}, fee and yield details:`);
+    console.log(`TotalAmount: ${formatAmount(totalAmount)}, fee and yield details:`);
     console.log(detials);
+    content += `totalAmount: ${formatAmount(totalAmount)}\n`;
+    content += `stETH fee: ${formatAmount(detials.get('steth').feeAmounts[0])}, yield: ${formatAmount(detials.get('steth').yieldAmounts[0])}\n`;
+    content += `rETH fee: ${formatAmount(detials.get('reth').feeAmounts[0])}, yield: ${formatAmount(detials.get('reth').yieldAmounts[0])}\n`;
 
     for (const key in newMerkleTotal) {
-        let oldValue = BigNumber.from(oldMerkleTotal[key] || "0");
+        let oldValue = new BN(oldMerkleTotal[key] || "0");
         let value = newMerkleTotal[key];
-        let diff = BigNumber.from(value).sub(oldValue);
-        if (diff.gt(BigNumber.from('0'))) {
+        let diff = new BN(value).minus(oldValue);
+        if (diff.gt(new BN(0))) {
             if (!totalAmount.eq(diff)) {
                 throw new Error(`Invalid total amount: ${diff.toString()}, ${totalAmount.toString()}`);
             }
@@ -174,4 +179,14 @@ export const submitMerkle = async (assets: string[], block: number, automated: b
         console.log('Last publish timestamp: ' + await merkleDistributor.lastPublishTimestamp());
         console.log('Last publish block number: ' + await merkleDistributor.lastPublishBlockNumber());
     }
+
+    content += `New Cycle: ${await merkleDistributor.currentCycle()}\n`;
+    content += `Merkle root: ${await merkleDistributor.merkleRoot()}\n`;
+    content += `Merkle content hash: ${await merkleDistributor.merkleContentHash()}\n`;
+    content += `Last publish start block: ${await merkleDistributor.lastPublishStartBlock()}\n`;
+    content += `Last publish end block: ${await merkleDistributor.lastPublishEndBlock()}\n`;
+    content += `Last publish timestamp: ${await merkleDistributor.lastPublishTimestamp()}\n`;
+    content += `Last publish block number: ${await merkleDistributor.lastPublishBlockNumber()}\n`;
+
+    return content;
 }

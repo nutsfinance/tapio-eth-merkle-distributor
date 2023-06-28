@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
 import { format } from '@fast-csv/format'
-import BN from 'bn.js'
+import BN from "bignumber.js"
 
 export const config = {
   network: '',
@@ -60,6 +60,10 @@ export const formatBalance = (x: number | BN | string, decimal = 12) => {
   }
 
   return formatDecimal(n).toString()
+}
+
+export const formatAmount = (amount: BN, decimal = 18) => {
+  return amount.div(new BN(10).pow(decimal)).toFixed(decimal);
 }
 
 export const table = (data: any) => {
