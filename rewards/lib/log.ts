@@ -2,8 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { format } from '@fast-csv/format'
-import BN from "bignumber.js"
+import { format } from '@fast-csv/format';
+import BN from 'bn.js';
+import BN2 from 'bignumber.js';
+import { BigNumber } from "ethers";
 
 export const config = {
   network: '',
@@ -62,8 +64,8 @@ export const formatBalance = (x: number | BN | string, decimal = 12) => {
   return formatDecimal(n).toString()
 }
 
-export const formatAmount = (amount: BN, decimal = 18) => {
-  return amount.div(new BN(10).pow(decimal)).toFixed(decimal);
+export const formatAmount = (amount: BigNumber, decimal = 18) => {
+  return new BN2(amount.toString()).div(new BN2(10).pow(decimal)).toFixed(decimal);
 }
 
 export const table = (data: any) => {
