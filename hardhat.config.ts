@@ -35,7 +35,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
       },
     },
     goerli: {
-      url: process.env.GOERLI_RPC_URL,
+      url: process.env.GOERLI_RPC_URL || '',
       accounts: {
         mnemonic: process.env.MNEMONIC,
       },
@@ -43,7 +43,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
       timeout: 120000,
     },
     ethereum: {
-      url: process.env.ETHEREUM_RPC_URL,
+      url: process.env.ETHEREUM_RPC_URL || '',
       accounts: {
         mnemonic: process.env.MNEMONIC,
       },
