@@ -31,7 +31,7 @@ spec:
   stages {
     stage('Build') {
       when {
-        branch 'master'
+        branch 'main'
       }
       steps {
         container(name: 'kaniko') {
