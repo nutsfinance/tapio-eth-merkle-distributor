@@ -6,7 +6,9 @@ import { getTapEthBalance } from "./query_balance_tapeth";
 import { submitMerkle } from "./submit_merkle";
 
 const main = async () => {
-    let content = `Tapio Eth merkle distributor date time: ${new Date().toUTCString()}\n`;
+    const network = await ethers.provider.getNetwork();
+    const name = network.name.charAt(0).toUpperCase() + network.name.slice(1);
+    let content = `[${name}] Tapio Eth merkle distributor date time: ${new Date().toUTCString()}\n`;
     try {
         const blockNumber = await ethers.provider.getBlockNumber();
         console.log('Current block number: ' + blockNumber)
